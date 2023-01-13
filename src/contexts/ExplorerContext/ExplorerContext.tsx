@@ -2,17 +2,17 @@ import {
   useMemo,
   createContext,
   useContext,
-  useEffect,
-  useReducer,
+  /* useEffect,
+  useReducer, */
 } from "react";
 
-import { ACTION, ID, IFolder, IResource } from "ode-ts-client";
+import { ACTION /* ID, IFolder, IResource */ } from "ode-ts-client";
 
 import { useOdeContext } from "../OdeContext/OdeContext";
 import {
   ExplorerContextProps,
-  ThingWithAnID,
-  ActionOnThingsWithAnId,
+  /* ThingWithAnID,
+  ActionOnThingsWithAnId, */
   ExplorerProviderProps,
 } from "./types";
 
@@ -21,9 +21,9 @@ const Context = createContext<ExplorerContextProps | null>(null!);
 /**
  * These actions are used with selectionReducer
  */
-const SELECT_ELEMENT = "SELECT_ELEMENT";
+/* const SELECT_ELEMENT = "SELECT_ELEMENT";
 const DESELECT_ELEMENT = "DESELECT_ELEMENT";
-const DESELECT_ALL = "DESELECT_ALL";
+const DESELECT_ALL = "DESELECT_ALL"; */
 
 /**
  * This React Reducer is used to:
@@ -31,34 +31,34 @@ const DESELECT_ALL = "DESELECT_ALL";
  * deselect folder or resource
  * deselect all folders or resources.
  */
-function selectionReducer<T extends Record<ID, ThingWithAnID>>(
-  state: T,
-  action: ActionOnThingsWithAnId,
-) {
-  switch (action.type) {
-    case SELECT_ELEMENT: {
-      const { payload } = action;
-      const id = payload?.id as string;
+// function selectionReducer<T extends Record<ID, ThingWithAnID>>(
+//   state: T,
+//   action: ActionOnThingsWithAnId,
+// ) {
+//   switch (action.type) {
+//     case SELECT_ELEMENT: {
+//       const { payload } = action;
+//       const id = payload?.id as string;
 
-      /* Add Object in Object with spread syntax and computed value */
-      return { ...state, [id]: { ...payload } };
-    }
-    case DESELECT_ELEMENT: {
-      const { payload } = action;
-      const id = payload?.id as string;
+//       /* Add Object in Object with spread syntax and computed value */
+//       return { ...state, [id]: { ...payload } };
+//     }
+//     case DESELECT_ELEMENT: {
+//       const { payload } = action;
+//       const id = payload?.id as string;
 
-      /* Remove Object from Object with spread syntax and computed value */
-      const { [id]: value, ...rest } = state;
-      return { ...rest };
-    }
-    case DESELECT_ALL: {
-      /* Reset state with empty Object */
-      return {};
-    }
-    default:
-      throw Error(`Unknown action ${action.type}`);
-  }
-}
+//       /* Remove Object from Object with spread syntax and computed value */
+//       const { [id]: value, ...rest } = state;
+//       return { ...rest };
+//     }
+//     case DESELECT_ALL: {
+//       /* Reset state with empty Object */
+//       return {};
+//     }
+//     default:
+//       throw Error("Unknown action");
+//   }
+// }
 
 /**
  * This React context is a wrapper for the ode-ts-client explorer framework. It
@@ -78,13 +78,13 @@ export default function ExplorerProvider({
   const context = explorer.createContext(types, params.app);
 
   // Selected folders and resources
-  const [selectedFolders, dispatchOnFolder] = useReducer(selectionReducer, {});
+  /* const [selectedFolders, dispatchOnFolder] = useReducer(selectionReducer, {});
   const [selectedResources, dispatchOnResource] = useReducer(
     selectionReducer,
     {},
-  );
+  ); */
 
-  function selectFolder(folder: IFolder) {
+  /* function selectFolder(folder: IFolder) {
     dispatchOnFolder({ type: "SELECT_ELEMENT", payload: folder });
   }
 
@@ -114,9 +114,9 @@ export default function ExplorerProvider({
 
   function isResourceSelected(res: IResource) {
     return Object.hasOwn(selectedResources, res.id);
-  }
+  } */
 
-  async function openResource() {
+  /* async function openResource() {
     return await Promise.resolve(
       Object.values(selectedResources) as IResource[],
     )
@@ -128,7 +128,7 @@ export default function ExplorerProvider({
               .getBus()
               .publish(types[0], ACTION.OPEN, { resourceId: item.assetId });
       });
-  }
+  } */
 
   async function createResource() {
     return await explorer
@@ -140,47 +140,21 @@ export default function ExplorerProvider({
     () => ({
       context,
       explorer,
-      selectedFolders: Object.values(selectedFolders) as IFolder[],
+      /* selectedFolders: Object.values(selectedFolders) as IFolder[],
       selectedResources: Object.values(selectedResources) as IResource[],
       isFolderSelected,
-      isResourceSelected,
-      openResource,
+      isResourceSelected, */
+      /* openResource, */
       createResource,
-      deselectAllFolders,
+      /* deselectAllFolders,
       deselectAllResources,
       deselectFolder,
       deselectResource,
       selectFolder,
-      selectResource,
+      selectResource, */
     }),
-    [selectedFolders, selectedResources],
+    [],
   );
-
-  // Observe streamed search results
-  useEffect(() => {
-    const subscription = context.latestResources().subscribe({
-      next: (resultset) => {
-        // Prepare searching next page
-        const { pagination } = context.getSearchParameters();
-        pagination.maxIdx = resultset.output.pagination.maxIdx;
-        pagination.startIdx =
-          resultset.output.pagination.startIdx +
-          resultset.output.pagination.pageSize;
-        if (
-          typeof pagination.maxIdx !== "undefined" &&
-          pagination.startIdx > pagination.maxIdx
-        ) {
-          pagination.startIdx = pagination.maxIdx;
-        }
-      },
-    });
-
-    return () => {
-      if (subscription) {
-        subscription.unsubscribe();
-      }
-    };
-  }, []); // execute effect only once
 
   return <Context.Provider value={values}>{children}</Context.Provider>;
 }

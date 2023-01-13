@@ -11,11 +11,11 @@ export default function useActionBar() {
   const { toggle: toggleModal } = useModal(false);
 
   const {
-    openResource,
+    // openResource,
     createResource,
     context,
-    selectedResources,
-    selectedFolders,
+    // selectedResources,
+    // selectedFolders,
   } = useExplorerContext();
 
   useEffect(() => {
@@ -25,13 +25,13 @@ export default function useActionBar() {
     }
   }, [context]);
 
-  useEffect(() => {
+  /* useEffect(() => {
     if (selectedResources.length === 0) {
       setIsActionBarOpen(false);
       return;
     }
     setIsActionBarOpen(true);
-  }, [selectedResources]);
+  }, [selectedResources]); */
 
   function handleOpenModal() {
     toggleModal(true);
@@ -39,8 +39,8 @@ export default function useActionBar() {
 
   function handleClick(action: IAction) {
     switch (action.id) {
-      case ACTION.OPEN:
-        return openResource();
+      // case ACTION.OPEN:
+      // return openResource();
       case ACTION.CREATE:
         return createResource();
       case ACTION.MOVE:
@@ -60,8 +60,9 @@ export default function useActionBar() {
    * @returns true if the action button must be visible
    */
   function isActivable(action: IAction): boolean {
-    const onlyOneItemSelected =
-      selectedResources.length === 1 && selectedFolders.length === 0;
+    /* const onlyOneItemSelected =
+      selectedResources.length === 1 && selectedFolders.length === 0; */
+    const onlyOneItemSelected = true;
     switch (action.id) {
       case ACTION.OPEN:
         return onlyOneItemSelected;

@@ -23,16 +23,16 @@ export interface ActionOnThingsWithAnId {
 export interface ExplorerContextProps {
   context: IExplorerContext;
   explorer: IExplorerFramework;
-  selectedFolders: IFolder[];
+  /* selectedFolders: IFolder[];
   selectedResources: IResource[];
   isFolderSelected: (folder: IFolder) => boolean;
-  isResourceSelected: (res: IResource) => boolean;
+  isResourceSelected: (res: IResource) => boolean; */
   createResource: () => void;
   openResource: () => void;
-  selectFolder: (folder: IFolder) => void;
+  /* selectFolder: (folder: IFolder) => void;
   selectResource: (res: IResource) => void;
   deselectAllFolders: () => void;
   deselectAllResources: () => void;
   deselectFolder: (folder: IFolder) => void;
-  deselectResource: (res: IResource) => void;
+  deselectResource: (res: IResource) => void; */
 }

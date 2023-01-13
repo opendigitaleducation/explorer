@@ -17,6 +17,7 @@
     "target": "ESNext",
     "useDefineForClassFields": true,
     "paths": {
+      "@assets/*": ["./assets/*"],
       "@components/*": ["./components/*"],
       "@config/*": ["./config/*"],
       "@contexts/*": ["./contexts/*"],

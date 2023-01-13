@@ -1,13 +1,16 @@
 import { defineConfig } from "vite";
 import path from "path";
 import react from "@vitejs/plugin-react";
-/* import pkg from "./package.json"; */
 
 // https://vitejs.dev/config/
 export default defineConfig({
   resolve: {
     alias: [
       { find: "~", replacement: path.resolve(__dirname, "src") },
+      {
+        find: "@assets",
+        replacement: path.resolve(__dirname, "./src/assets"),
+      },
       {
         find: "@components",
         replacement: path.resolve(__dirname, "./src/components"),
@@ -46,11 +49,6 @@ export default defineConfig({
     },
   },
   plugins: [react()],
-  /* server: {
-    host: "0.0.0.0",
-    port: 3000,
-    open: true,
-  }, */
   server: {
     proxy: {
       // List of all applications
@@ -85,6 +83,5 @@ export default defineConfig({
     },
     host: "0.0.0.0",
     port: 3000,
-    //open: true,
   },
 });

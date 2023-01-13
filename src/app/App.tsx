@@ -13,15 +13,14 @@ import {
   Grid,
   Header,
   Input,
-  Modal,
   SearchButton,
-  TreeView,
 } from "@ode-react-ui/core";
-import { useModal } from "@ode-react-ui/hooks";
 import { Plus } from "@ode-react-ui/icons";
 import { AppHeader, FakeCard, EPub } from "@shared/components/index";
 import { clsx } from "@shared/config/index";
-import { IResource } from "ode-ts-client";
+import { IFolder } from "ode-ts-client";
+
+import useExplorer from "../store/store";
 
 /* import libraryIMG from "../assets/images/library.jpg"; */
 
@@ -31,19 +30,20 @@ function App() {
   /* explorer @hook */
   const {
     context,
-    selectResource,
-    deselectResource,
+    /* selectResource,
+    deselectResource, */
     createResource,
-    isResourceSelected,
+    // isResourceSelected,
   } = useExplorerContext();
   /* actionbar @hook */
   const { isActionBarOpen } = useActionBar();
   /* ode context @hook */
   const { session, currentApp, is1D, themeBasePath } = useOdeContext();
   /* feature explorer @hook */
-  const { treeData, listData } = useExplorerAdapter();
+  // const { listData, folders } = useExplorerAdapter();
+  const [state] = useExplorer();
 
-  const { isOpen, toggle: toggleModal } = useModal(false);
+  console.log("state", state);
 
   useEffect(() => {
     // TODO initialize search parameters. Here and/or in the dedicated React component
@@ -62,20 +62,16 @@ function App() {
     e.preventDefault();
   }
 
-  function toggleSelect(item: IResource) {
+  /* function toggleSelect(item: IResource) {
     if (isResourceSelected(item)) {
       deselectResource(item);
     } else {
       selectResource(item);
     }
-  }
+  } */
 
   function handleViewMore() {
     context.getResources();
-  }
-
-  function handleCloseModal() {
-    toggleModal(false);
   }
 
   const mainClasses = clsx("container-fluid bg-white", {
@@ -148,15 +144,20 @@ function App() {
             </form>
             <h2 className="py-24 body">{i18n("filters.mine")}</h2>
             <ul className="grid ps-0">
-              {listData.map((item: any) => {
+              {state.folders.map((folder: IFolder) => {
+                return <FakeCard key={folder.id} {...folder} />;
+              })}
+            </ul>
+            <ul className="grid ps-0">
+              {state.listData.map((item: any) => {
                 return (
                   <FakeCard
                     key={item.assetId}
                     {...item}
                     currentApp={currentApp}
-                    selected={isResourceSelected(item)}
+                    /* selected={isResourceSelected(item)}
                     onClick={() => toggleSelect(item)}
-                    onKeyDown={() => toggleSelect(item)}
+                    onKeyDown={() => toggleSelect(item)} */
                   />
                 );
               })}
@@ -176,49 +177,6 @@ function App() {
           <ActionBarContainer isOpen={isActionBarOpen} />
         </Grid>
       </main>
-      <Modal id="move" isOpen={isOpen} onModalClose={handleCloseModal}>
-        <Modal.Header onModalClose={handleCloseModal}>Déplacer</Modal.Header>
-        <Modal.Subtitle>
-          Sélectionner le dossier vers lequel déplacer les éléments
-        </Modal.Subtitle>
-        <Modal.Body>
-          <TreeView data={treeData} />
-
-          <div className="mt-48">
-            <FormControl id="folder-name" className="d-flex gap-8">
-              <Input type="text" placeholder="Saisir un nom" size="md" />
-              <Button
-                color="primary"
-                onClick={() => {}}
-                type="button"
-                leftIcon={<Plus />}
-                variant="ghost"
-                className="text-nowrap"
-              >
-                Créer dossier
-              </Button>
-            </FormControl>
-          </div>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button
-            type="button"
-            color="tertiary"
-            variant="ghost"
-            onClick={handleCloseModal}
-          >
-            Annuler
-          </Button>
-          <Button
-            type="button"
-            color="primary"
-            variant="filled"
-            onClick={handleCloseModal}
-          >
-            Déplacer
-          </Button>
-        </Modal.Footer>
-      </Modal>
     </div>
   );
 }

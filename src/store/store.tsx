@@ -1,16 +1,58 @@
-import { useEffect } from "react";
+import { useEffect, useReducer } from "react";
 
 import { useExplorerContext } from "@contexts/index";
+import TreeNodeFolderWrapper from "@features/Explorer/adapters/TreeNodeFolderWrapper";
+import { TreeNode } from "@ode-react-ui/core";
 import { IFolder, IResource } from "ode-ts-client";
 
-import useExplorer from "../../../store/store";
-import { TreeNodeFolderWrapper } from "../adapters";
-import { TreeNode } from "../types";
+/**
+ * This hook acts as a data-model adapter.
+ * It allows a TreeView component to explore and display folders streamed from an IExplorerContext.
+ */
+interface State {
+  treeData: TreeNode;
+  folders: IFolder[];
+  listData: IResource[];
+}
 
-export default function useExplorerAdapter() {
+const initialState = {
+  treeData: {
+    id: "default",
+    name: "Blogs",
+    section: true,
+    children: [],
+  },
+  folders: [],
+  listData: [],
+};
+
+const reducer = (state: State = initialState, action: any) => {
+  switch (action.type) {
+    case "GET_RESOURCES": {
+      const { resources } = action;
+      console.log("resources", resources);
+
+      return { ...state, listData: resources };
+    }
+    case "GET_FOLDERS": {
+      const { folders } = action;
+      return { ...state, folders };
+    }
+    case "GET_TREEDATA": {
+      console.log("action", action);
+
+      const { treeData } = action;
+      return { ...state, ...treeData };
+    }
+    default:
+      throw Error("Unknown action");
+  }
+};
+
+export default function useExplorer() {
   const { context } = useExplorerContext();
 
-  const [state, dispatch] = useExplorer();
+  const [state, dispatch] = useReducer(reducer, initialState);
 
   // Observe streamed search results
   useEffect(() => {
@@ -39,9 +81,7 @@ export default function useExplorerAdapter() {
         subscription.unsubscribe();
       }
     };
-  }, []); // execute effect only once
-
-  // TODO  const selectedNode = treeData;
+  }, []);
 
   function findNodeById(id: string, data: TreeNode): TreeNode | undefined {
     let res: TreeNode | undefined;
@@ -59,7 +99,7 @@ export default function useExplorerAdapter() {
 
   function wrapTreeData(folders?: IFolder[]) {
     folders?.forEach((folder) => {
-      const parentFolder = findNodeById(folder.parentId, treeData);
+      const parentFolder = findNodeById(folder.parentId, state.treeData);
       if (
         !parentFolder?.children?.find((child: any) => child.id === folder.id)
       ) {
@@ -72,7 +112,7 @@ export default function useExplorerAdapter() {
       }
     });
 
-    dispatch({ type: "GET_TREEDATA", treeData });
+    dispatch({ type: "GET_TREEDATA", treeData: state.treeData });
   }
 
   function wrapResourceData(resources?: IResource[]) {
@@ -87,11 +127,7 @@ export default function useExplorerAdapter() {
     }
   }
 
-  const { treeData, listData, folders } = state;
+  return [state];
 
-  return {
-    folders,
-    treeData,
-    listData,
-  };
+  /* return useReducer(reducer, initialState); */
 }
